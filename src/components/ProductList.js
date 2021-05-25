@@ -1,26 +1,31 @@
-import React, { useEffect } from "react";
-import axios from "axios";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { setProducts } from "../redux/actions/productsActions";
 import ProductComponent from "./ProductComponent";
+
+import { fetchProducts } from "../redux/actions/productsActions";
 
 const ProductList = () => {
   const dispatch = useDispatch();
-  const products = useSelector((state) => state.allProducts.products);
+  const { loading, error, products } = useSelector(
+    (state) => state.allProducts
+  );
 
   useEffect(() => {
-    axios
-      .get("https://fakestoreapi.com/products")
-      .then((res) => dispatch(setProducts(res.data)))
-      .catch((err) => console.log("Error : ", err));
-  }, []);
+    dispatch(fetchProducts());
+  }, [dispatch]);
 
-  console.log(products.length);
+  if (loading) {
+    return <h2>Traendo Productos</h2>;
+  }
+
+  if (error) {
+    return <h2>{error}</h2>;
+  }
 
   return (
-    <div className="ui grid container">
-      {products.length &&
+    <div className="ui grid container" style={{ marginTop: "20px" }}>
+      {!loading &&
         products.map((product) => (
           <ProductComponent key={product.id} product={product} />
         ))}
